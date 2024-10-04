@@ -1,0 +1,6 @@
+torch
+torchvision
+ultralytics
+numpy
+scipy
+scikit-learn
