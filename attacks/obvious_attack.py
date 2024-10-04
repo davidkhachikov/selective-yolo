@@ -16,7 +16,7 @@ def obvious_attack(original: np.array, dif_image: np.array, mask: np.array = Non
         copy_orig = cv2.bitwise_and(original, original, mask=cv2.bitwise_not(mask))
     attack = cv2.bitwise_or(copy_orig, copy_dif)
     if opacity < 1:
-        attack = cv2.addWeighted(attack, opacity, original, 1- opacity, 0)
+        attack = cv2.addWeighted(attack, opacity, original, 1 - opacity, 0)
     return attack
 
 
