@@ -1,9 +1,12 @@
-# import torch
 from ultralytics.models.yolo import YOLO
 from tryalgo.union_rectangles import union_rectangles_fastest
 from PIL import Image
 
 def intersect_segments(x1, x2, x3, x4):
+    """
+    Calculate the intersection of two line segments [x1, x2] and [x3, x4].
+    Return the intersection coordinates if they exist, otherwise None.
+    """
     if x1 >= x3:
         x1, x3 = x3, x1
         x2, x4 = x4, x2
@@ -13,6 +16,10 @@ def intersect_segments(x1, x2, x3, x4):
 
 
 def intersect_bboxes(bbox1, bbox2):
+    """
+    Calculate the intersection of two rectangular bounding boxes.
+    Return the intersection coordinates if they exist, otherwise None.
+    """
     x1, y1, x2, y2 = bbox1
     x3, y3, x4, y4 = bbox2
     x_intersection = intersect_segments(x1, x2, x3, x4)
@@ -23,6 +30,11 @@ def intersect_bboxes(bbox1, bbox2):
     
 
 def intersect_many_bboxes(bboxes1, bboxes2):
+    """
+    Find all intersections between two sets of rectangular bounding boxes.
+    This intersections may overlap!
+    Return a list of intersection coordinates.
+    """
     result = []
     for bbox1 in bboxes1:
         for bbox2 in bboxes2:
@@ -32,23 +44,11 @@ def intersect_many_bboxes(bboxes1, bboxes2):
     return result
 
 
-def calculate_iou_diff_models(img, model1, model2):
-    def get_bboxes(model, img):
-        outputs = model(img)
-        bboxes = []
-        for output in outputs:
-            for box in output.pred:
-                x1, y1, x2, y2 = int(box[0]), int(box[1]), int(box[2]), int(box[3])
-                bboxes.append((x1, y1, x2, y2))
-    
-    bboxes1 = get_bboxes(model1, img)
-    bboxes2 = get_bboxes(model2, img)
-    
-    intersected_bboxes = intersect_many_bboxes(bboxes1, bboxes2)
-    return union_rectangles_fastest(intersected_bboxes) / union_rectangles_fastest(bboxes1 + bboxes2)
-
-
 def get_bboxes(model, img_path):
+    """
+    Extract bounding boxes from the model's prediction on the given image.
+    Resize the image to 640x640 pixels before processing.
+    """
     img = Image.open(img_path).convert('RGB')
     img = img.resize((640, 640))
     
@@ -58,12 +58,31 @@ def get_bboxes(model, img_path):
         bboxes.extend(list(output.boxes.xyxy.detach().numpy()))
     return bboxes
 
+
+def calculate_iou_diff_models(img, model1, model2):
+    """
+    Calculate the Intersection over Union (IoU) difference between two models
+    on the same image. This metric compares overlapping areas between predictions.
+    """
+    bboxes1 = get_bboxes(model1, img)
+    bboxes2 = get_bboxes(model2, img)
+    
+    intersected_bboxes = intersect_many_bboxes(bboxes1, bboxes2)
+    return union_rectangles_fastest(intersected_bboxes) / union_rectangles_fastest(bboxes1 + bboxes2)
+
+
 def calculate_iou_diff_images(img1, img2, model):
+    """
+    Calculate the Intersection over Union (IoU) difference between two images
+    processed by the same model. This metric compares overlapping areas
+    between predictions on different input images.
+    """
     bboxes1 = get_bboxes(model, img1)
     bboxes2 = get_bboxes(model, img2)
     
     intersected_bboxes = intersect_many_bboxes(bboxes1, bboxes2)
     return union_rectangles_fastest(intersected_bboxes) / union_rectangles_fastest(bboxes1 + bboxes2)
+
 
 if __name__ == "__main__":
     model = YOLO("yolov8n.pt")
