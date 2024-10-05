@@ -1,7 +1,7 @@
 # import torch
 from ultralytics.models.yolo import YOLO
 from tryalgo.union_rectangles import union_rectangles_fastest
-import numpy as np
+from PIL import Image
 
 def intersect_segments(x1, x2, x3, x4):
     if x1 >= x3:
@@ -48,15 +48,15 @@ def calculate_iou_diff_models(img, model1, model2):
     return union_rectangles_fastest(intersected_bboxes) / union_rectangles_fastest(bboxes1 + bboxes2)
 
 
-def get_bboxes(model, img):
-        outputs = model(img)
-        bboxes = []
-        for output in outputs:
-            for box in output.boxes.xyxy:
-                x1, y1, x2, y2 = int(box[0]), int(box[1]), int(box[2]), int(box[3])
-                bboxes.append((x1, y1, x2, y2))
-        return bboxes
-
+def get_bboxes(model, img_path):
+    img = Image.open(img_path).convert('RGB')
+    img = img.resize((640, 640))
+    
+    outputs = model(img)
+    bboxes = []
+    for output in outputs:
+        bboxes.extend(list(output.boxes.xyxy.detach().numpy()))
+    return bboxes
 
 def calculate_iou_diff_images(img1, img2, model):
     bboxes1 = get_bboxes(model, img1)
