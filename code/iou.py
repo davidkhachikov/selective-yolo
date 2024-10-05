@@ -62,8 +62,6 @@ def calculate_iou_diff_images(img1, img2, model):
     bboxes1 = get_bboxes(model, img1)
     bboxes2 = get_bboxes(model, img2)
     
-    print(bboxes1, bboxes2)
-
     intersected_bboxes = intersect_many_bboxes(bboxes1, bboxes2)
     return union_rectangles_fastest(intersected_bboxes) / union_rectangles_fastest(bboxes1 + bboxes2)
 
@@ -71,5 +69,4 @@ if __name__ == "__main__":
     model = YOLO("yolov8n.pt")
     img1 = './resources/universal_attack/karpin.jpg'
     img2 = './resources/universal_attack/adversarial_karpin.jpg'
-    print(intersect_bboxes((139, 19, 639, 638), (0, 2, 301, 284)))
     print(calculate_iou_diff_images(img1, img2, model))
