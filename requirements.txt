@@ -4,3 +4,4 @@ ultralytics
 numpy
 scipy
 scikit-learn
+tryalgo
