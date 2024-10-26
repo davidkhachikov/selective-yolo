@@ -2,6 +2,7 @@ import wandb
 import os
 import zipfile
 
+wandb.login(key="44798f8be4d8fa6ae84b550e51cc8d8e28a25eed")
 api = wandb.Api()
 
 run_path = input("Enter the run path (entity/project/run_id): ")

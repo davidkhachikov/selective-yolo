@@ -7,10 +7,11 @@ def intersect_segments(x1, x2, x3, x4):
     Calculate the intersection of two line segments [x1, x2] and [x3, x4].
     Return the intersection coordinates if they exist, otherwise None.
     """
+    assert x1 <= x2 and x3 <= x4
     if x1 >= x3:
         x1, x3 = x3, x1
         x2, x4 = x4, x2
-    if x2 > x3:
+    if x2 >= x3:
         return (x3, x2)
     return None
 
@@ -36,8 +37,8 @@ def intersect_many_bboxes(bboxes1, bboxes2):
     Return a list of intersection coordinates.
     """
     result = []
-    for bbox1 in bboxes1:
-        for bbox2 in bboxes2:
+    for i, bbox1 in enumerate(bboxes1):
+        for bbox2 in bboxes2[i:]:
             curr_bbox = intersect_bboxes(bbox1, bbox2)
             if curr_bbox != None:
                 result.append(curr_bbox)
@@ -90,9 +91,13 @@ def get_bboxes_batch(model, imgs):
     The model should handle batch processing. Returns a list of bounding boxes 
     for each image in the batch.
     """
-    imgs = [img.convert('RGB').resize((640, 640)) for img in imgs]
+    assert isinstance(imgs, list)
+    if all(isinstance(img, str) for img in imgs):
+        imgs = [Image.open(img).convert('RGB').resize((640, 640)) for img in imgs]
+    else:
+        imgs = [img.convert('RGB').resize((640, 640)) for img in imgs]
     
-    outputs = model(imgs)
+    outputs = model(imgs, verbose=False)
     
     bboxes_batch = []
     for output in outputs:
@@ -130,7 +135,7 @@ def calculate_iou_diff_models_batch(imgs, model1, model2):
     for intersected_bboxes, bboxes1, bboxes2 in zip(intersected_bboxes_batch, bboxes_batch1, bboxes_batch2):
         union_area = union_rectangles_fastest(bboxes1 + bboxes2)
         intersect_area = union_rectangles_fastest(intersected_bboxes)
-        iou_diff = float(intersect_area / union_area)
+        iou_diff = float(min(intersect_area / union_area, 1.0)) if union_area > 1e-3 else 1.0
         iou_diffs.append(iou_diff)
     
     return iou_diffs
