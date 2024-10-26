@@ -1,4 +1,3 @@
-*.pt
 *.pth
 .venv
 data/raw/coco2017
