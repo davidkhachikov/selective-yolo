@@ -11,20 +11,22 @@ def obvious_attack(original: np.array, dif_image: np.array, mask: np.array = Non
     if mask is not None and mask.shape != original.shape:
         h, w, c = original.shape
         mask = cv2.resize(mask, (w, h))
+    attack = None
     if mask is not None:
         copy_dif = cv2.bitwise_and(copy_dif, copy_dif, mask=mask)
         copy_orig = cv2.bitwise_and(original, original, mask=cv2.bitwise_not(mask))
-    attack = cv2.bitwise_or(copy_orig, copy_dif)
-    if opacity < 1:
-        attack = cv2.addWeighted(attack, opacity, original, 1 - opacity, 0)
+        attack = cv2.bitwise_or(copy_orig, copy_dif)
+        if opacity < 1:
+            attack = cv2.addWeighted(attack, opacity, copy_orig, 1 - opacity, 0)
+    else:
+        attack = cv2.addWeighted(copy_dif, opacity, copy_orig, 1 - opacity, 0)
     return attack
 
 
 if __name__ == "__main__":
     original = cv2.imread("test_image/no_cat_image.jpg")
-    different = cv2.imread("test_image/cat_image.jpg")
-    assert different.shape == original.shape
+    different = cv2.imread("test_image/no_noise_image.jpg")
     _, mask = cv2.threshold(different, 20, 255, cv2.THRESH_BINARY)
     mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite("test_image/obvious_attack_image.jpg", obvious_attack(original, different, mask, 0.1))
+    cv2.imwrite("test_image/obvious_attack_image.jpg", obvious_attack(original, different, opacity=0.45))
 
