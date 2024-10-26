@@ -152,11 +152,10 @@ if __name__ == '__main__':
     n_images = 512
     n_checkpoints = 20
 
-
-    checkpoints = load_yolo_checkpoints(n_checkpoints, folder_path='./data/checkpoints/AdamW/')
+    ensemble = EnsembleOfCheckpoints(folder_path='./data/checkpoints/AdamW')
     dataloader = get_coco_dataloader(n_images)
     
-    divergences, eval = voting(dataloader, checkpoints)
+    divergences, eval = ensemble.voting(dataloader)
     indices_of_lowest_n = np.argsort(eval)[:int(persentage_of_lowest*n_images)]
     indices_of_best_n = np.argsort(eval)[int((1-persentage_of_lowest)*n_images):]
 

@@ -1,5 +1,5 @@
 *.pt
 *.pth
 .venv
-data
+data/raw/coco2017
 *.zip
