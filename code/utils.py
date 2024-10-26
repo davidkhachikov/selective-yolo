@@ -1,4 +1,3 @@
-from ultralytics.models.yolo import YOLO
 from tryalgo.union_rectangles import union_rectangles_fastest
 from PIL import Image
 
@@ -159,10 +158,3 @@ def calculate_iou_diff_images_batch(imgs1, imgs2, model):
         iou_diffs.append(iou_diff)
     
     return iou_diffs
-
-
-if __name__ == "__main__":
-    model = YOLO("yolov8n.pt")
-    img1 = Image.open('./resources/universal_attack/karpin.jpg')
-    img2 = Image.open('./resources/universal_attack/adversarial_karpin.jpg')
-    print(calculate_iou_diff_images_batch([img1, img2, img2], [img2, img1, img2], model))

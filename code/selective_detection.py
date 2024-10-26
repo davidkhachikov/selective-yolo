@@ -1,6 +1,6 @@
 import os
 from ultralytics import YOLO
-from iou import calculate_iou_diff_models_batch
+from utils import calculate_iou_diff_models_batch
 from multiprocessing import Manager, Pool, Array
 import numpy as np
 from torch.utils.data import DataLoader, Dataset
