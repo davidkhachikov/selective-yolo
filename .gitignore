@@ -2,3 +2,6 @@
 .venv
 data/raw/coco2017
 *.zip
+*.pt
+*.pth 
+*.jpg
